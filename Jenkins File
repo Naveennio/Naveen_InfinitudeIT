@@ -1,20 +1,49 @@
 pipeline {
     agent any
+
     stages {
+        stage('Checkout') {
+            steps {
+                // Checkout your code from the repository
+                git url: 'https://your-repo-url.git', branch: 'main'
+            }
+        }
+
+        stage('Static Analysis') {
+            steps {
+                // Run Pylint
+                sh 'pylint your_fastapi_app.py'
+
+                // Run Flake8
+                sh 'flake8 your_fastapi_app.py'
+
+                // Run mypy for type checking
+                sh 'mypy your_fastapi_app.py'
+
+                // Run Bandit for security checks
+                sh 'bandit -r your_fastapi_app_directory/'
+            }
+        }
+
         stage('Build') {
             steps {
-                echo 'Building...'
+                // Your build steps here (e.g., packaging)
+                echo 'Building the application...'
             }
         }
-        stage('Test') {
-            steps {
-                echo 'Testing...'
-            }
-        }
+
         stage('Deploy') {
             steps {
-                echo 'Deploying...'
+                // Your deployment steps here
+                echo 'Deploying the application...'
             }
+        }
+    }
+
+    post {
+        always {
+            // Archive static analysis results or logs if necessary
+            archiveArtifacts artifacts: '**/*.log', allowEmptyArchive: true
         }
     }
 }
