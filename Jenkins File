@@ -5,22 +5,22 @@ pipeline {
         stage('Checkout') {
             steps {
                 // Checkout your code from the repository
-                git url: 'https://your-repo-url.git', branch: 'main'
+                git url: https://github.com/Naveennio/Naveen_InfinitudeIT', branch: 'main'
             }
         }
 
         stage('Static Analysis') {
             steps {
-                // Run Pylint
+                
                 sh 'pylint your_fastapi_app.py'
 
-                // Run Flake8
+                
                 sh 'flake8 your_fastapi_app.py'
 
-                // Run mypy for type checking
+             
                 sh 'mypy your_fastapi_app.py'
 
-                // Run Bandit for security checks
+                
                 sh 'bandit -r your_fastapi_app_directory/'
             }
         }
