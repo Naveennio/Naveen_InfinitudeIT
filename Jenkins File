@@ -2,48 +2,53 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Source Code') {
             steps {
-                // Checkout your code from the repository
-                git url: https://github.com/Naveennio/Naveen_InfinitudeIT', branch: 'main'
+                // Checkout code from GitHub
+                git url: 'https://github.com/your-repo.git', branch: 'main'
             }
         }
 
-        stage('Static Analysis') {
+        stage('Static Code Analysis') {
             steps {
-                
-                sh 'pylint your_fastapi_app.py'
-
-                
-                sh 'flake8 your_fastapi_app.py'
-
-             
-                sh 'mypy your_fastapi_app.py'
-
-                
-                sh 'bandit -r your_fastapi_app_directory/'
+                // Run static code analysis (e.g., using flake8)
+                script {
+                    def qualityGatePassed = sh(script: 'flake8 .', returnStatus: true) == 0
+                    if (!qualityGatePassed) {
+                        error("Quality gate failed. Stopping the pipeline.")
+                    }
+                }
             }
         }
 
-        stage('Build') {
+        stage('Provision Infrastructure') {
             steps {
-                // Your build steps here (e.g., packaging)
-                echo 'Building the application...'
+                // Execute Terraform script to provision infrastructure
+                dir('terraform') {
+                    sh 'terraform init'
+                    sh 'terraform apply -auto-approve'
+                }
             }
         }
 
-        stage('Deploy') {
+        stage('Deployment & Load Balancing') {
             steps {
-                // Your deployment steps here
-                echo 'Deploying the application...'
+                // Deploy FastAPI application on EC2
+                script {
+                    // Assuming you have a deployment script ready
+                    sh './deploy_fastapi.sh'
+
+                    // Configure Elastic Load Balancer (ELB)
+                    sh './configure_elb.sh'
+                }
             }
         }
     }
 
     post {
         always {
-            // Archive static analysis results or logs if necessary
-            archiveArtifacts artifacts: '**/*.log', allowEmptyArchive: true
+            // Clean up or notify
+            echo 'Pipeline completed.'
         }
     }
 }
